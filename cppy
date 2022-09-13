@@ -1,0 +1,121 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+void printSets(vector<int> set1, vector<int> set2)
+{
+ int i;
+
+ /// Print set 1.
+ for (i = 0; i < set1.size(); i++) {
+  cout << set1[i] << " ";
+ }
+
+ cout << "\n";
+
+ /// Print set 2.
+ for (i = 0; i < set2.size(); i++) {
+  cout << set2[i] << " ";
+ }
+}
+bool partition (int arr[], int n)
+{
+	int sum = 0;
+	int i, j;
+
+	for (i = 0; i < n; i++)
+	sum += arr[i];
+
+	if (sum % 2 != 0)
+	return false;
+
+	bool part[n + 1][sum / 2 + 1];
+
+	// initialize top row as false
+	for (i = 0; i <= sum/2; i++)
+        part[0][i] = false;
+
+	// initialize leftmost column as true
+	for (i = 0; i <= n; i++)
+	part[i][0] = true;
+
+	// Fill the partition table in botton up manner
+	for (i = 1; i <= n; i++)
+	{
+		for (j = 1; j <= sum/2; j++)
+		{
+			part[i][j] = part[i-1][j];
+			if (j >= arr[i - 1])
+			part[i][j]  |= 
+						part[i - 1][j - arr[i -1]];
+
+		}
+	}
+
+	return part[n][sum/2];
+}
+
+bool findSets(int arr[], int n, vector<int>& set1,
+   vector<int>& set2, int sum1, int sum2,
+   int pos)
+{
+
+ /// If entire array is traversed, compare both the sums.
+ if (pos == n) {
+
+  /// If sums are equal print both sets and return
+  /// true to show sets are found.
+  if (sum1 == sum2) {
+   printSets(set1, set2);
+   return true;
+  }
+
+  /// If sums are not equal then return sets are not
+  /// found.
+  else
+   return false;
+ }
+
+ /// Add current element to set 1.
+ set1.push_back(arr[pos]);
+
+ /// Recursive call after adding current element to
+ /// set 1.
+ bool res = findSets(arr, n, set1, set2, sum1 + arr[pos],
+      sum2, pos + 1);
+
+ /// If this inclusion results in equal sum sets
+ /// partition then return true to show desired sets are
+ /// found.
+ if (res)
+  return res;
+
+ /// If not then backtrack by removing current element
+ /// from set1 and include it in set 2.
+ set1.pop_back();
+ set2.push_back(arr[pos]);
+
+ /// Recursive call after including current element to
+ /// set 2.
+ res = findSets(arr, n, set1, set2, sum1,
+    sum2 + arr[pos], pos + 1);
+ if (res == false)
+  set2.pop_back();
+
+ return res;
+}
+
+int main()
+{
+	int arr[] = {2,4,1,3};
+	int n = sizeof(arr) / sizeof(arr[0]);
+	 vector<int> set1, set2;
+	if (partition(arr, n) == true){
+		cout << "Can be divided into two subsets of equal sum"<<endl;
+		findSets(arr, n, set1, set2, 0, 0, 0);}
+	else{
+		cout << "Can not be divided into"
+			<< " two subsets of equal sum";}
+			
+	
+	return 0;
+}
